@@ -9,12 +9,12 @@ wcrew.lua
 This script has the following functions:
 
 1. Shows the location of the Prize Bomb on each level, when available.
-2. Shows Prize Bomb counters on each level to help get the Golden Hammer
-    i. Bomb Counter is how many bombs are left to wreck
-    ii. Magic Number is how many swing are you must perform
-    iii. When Bomb Counter and Magic Number equal 1, wreck the Prize Bomb for a Golden Hammer
-3. Shows the location of the Bonus Coin after every 4 levels.
-4. Holding B then quickly pressing A with turn on/off the Golden Hammer. Useful for practising levels with the Golden Hammer without backtracking.
+1. Shows Prize Bomb counters on each level to help get the Golden Hammer
+ i. Bomb Counter is how many bombs are left to wreck
+ i. Magic Number is how many swing are you must perform
+ i. When Bomb Counter and Magic Number equal 1, wreck the Prize Bomb for a Golden Hammer
+1. Shows the location of the Bonus Coin after every 4 levels.
+1. Holding B then quickly pressing A with turn on/off the Golden Hammer. Useful for practising levels with the Golden Hammer without backtracking.
 
 Wrecking Crew.wch
 =================
@@ -42,8 +42,8 @@ On each level it starts at [Phase number - 1] and increases by 1 with each swing
 The Magic Number is stored at {{0x005D}}.
 
 The Golden Hammer comes out after the Prize Bomb is exploded when two conditions are met:
-1. The Bomb Counter is at 3.
-1. The Magic Number is evenly divisible by 8.
+ 1. The Bomb Counter is at 3.
+ 1. The Magic Number is evenly divisible by 8.
 
 If the Prize Bomb is the first or second bomb exploded, the Bomb Counter is set to 0 preventing a prize from coming out.
 If a bomb that isn't the Prize Bomb is hit third, the Bomb Counter is set to 0 preventing a prize.
@@ -59,10 +59,10 @@ Incidentally, in normal levels this is the location of the first enemy.
 
 Known Unknowns
 ==============
-How is the Prize Bomb location selected?
-How is the Bonus Coin location selected?
+* How is the Prize Bomb location selected?
+* How is the Bonus Coin location selected?
 
 Misc.
 =====
-The game keeps track of how many levels (including bonus) you've beaten in a row at {{0x0039}}.
-The game keeps track of how many things have been wrecked since power on at {{0x005e}}.
+* The game keeps track of how many levels (including bonus) you've beaten in a row at {{0x0039}}.
+* The game keeps track of how many things have been wrecked since power on at {{0x005e}}.
