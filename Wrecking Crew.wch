@@ -1,0 +1,27 @@
+
+25
+00000	0440	b	s	0	Bomb Counter
+00001	0441	b	h	0	Prize Bomb
+00002	005D	b	s	0	Magic Number
+00003	0000	S	S	0	----------------------------
+00004	020B	b	h	0	Mario X
+00005	0315	b	h	0	Mario Y (-x/32)
+00006	030D	b	h	0	Mario Y (mid-floor)
+00007	0000	S	S	0	----------------------------
+00008	0310	b	h	0	Floor
+00009	003F	b	h	0	Camera-Y
+0000A	0000	S	S	0	----------------------------
+0000B	03AA	b	h	0	Bottom Left Blocks
+0000C	054B	b	h	0	Level 4 Prize Bomb
+0000D	03DD	b	h	0	Fireball
+0000E	005E	b	h	0	All Time Smashes
+0000F	04D0	b	s	0	Bomb Chain Reaction
+00010	0300	b	s	0	Is Walking/Falling?
+00011	0037	b	s	0	In-level Flag
+00012	0031	b	s	0	Pause Flag
+00013	0038	b	s	0	Music?
+00014	0039	b	s	0	Levels beat in a row
+00015	030F	b	h	0	Mario's Loc
+00016	034F	b	h	0	Bonus Coin / Enemy 1
+00017	0367	b	h	0	Enemy 2
+00018	005C	b	s	0	Go1den Hammer
