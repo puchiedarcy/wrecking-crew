@@ -10,8 +10,8 @@ This script has the following functions:
 
 1. Shows the location of the Prize Bomb on each level, when available.
 1. Shows Prize Bomb counters on each level to help get the Golden Hammer
- 1. Bomb Counter is how many bombs are left to wreck
- 1. Magic Number is how many swing are you must perform
+ 1. Bomb Counter is how many bombs are left
+ 1. Magic Number is how many swing are left
  1. When Bomb Counter and Magic Number equal 1, wreck the Prize Bomb for a Golden Hammer
 1. Shows the location of the Bonus Coin after every 4 levels.
 1. Holding B then quickly pressing A with turn on/off the Golden Hammer. Useful for practising levels with the Golden Hammer without backtracking.
