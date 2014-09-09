@@ -56,6 +56,8 @@ Bonus Coin
 ==========
 The location of the Bonus Coin is stored {{0x034F}}.
 Incidentally, in normal levels this is the location of the first enemy.
+The coin is never is columns 0 or F, and columns 1 and 2 are twice as likely as any of 3 throuh E.
+So, go left and never wreck the edges.
 
 Known Unknowns
 ==============
