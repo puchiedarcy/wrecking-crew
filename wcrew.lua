@@ -29,8 +29,8 @@ function switchGoldenHammer()
         end
     end
     
+    goldenHammerStatus = memory.readbyte('0x005C');
     if (isAPressed and isBPressed) then
-        goldenHammerStatus = memory.readbyte('0x005C');
         goldenHammerStatus = (goldenHammerStatus+1)%2;
     end
     
