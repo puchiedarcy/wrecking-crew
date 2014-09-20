@@ -1,17 +1,17 @@
-titleOffset = 177;
-
 function debugger(v)
     gui.text(0, 111, v);
 end
 
-function readRAM()
+function readRAMandInputs()
     cameraOffset = memory.readbyte('0x003F');
+    buttons = joypad.getdown(1);
 end
 
 function convertXLocToPixel(loc)
     return (loc%16)*16;
 end
 
+titleOffset = 177;
 function convertYLocToPixel(loc)
     return titleOffset + math.floor(loc/16)*32 - cameraOffset;
 end
@@ -31,28 +31,19 @@ end
 function drawLetter(loc, letter)
     local locX = convertXLocToPixel(loc);
     local locY = convertYLocToPixel(loc);
-
+    
     gui.text(locX, locY, letter);
 end
 
-goldenHammerStatus = 0;
+function isButtonPressed(button)
+    return buttons[button] ~= nil;
+end
+
 goldenHammerDelay = 0;
 function switchGoldenHammer()
-    buttons = joypad.getdown(1);
-
-    isAPressed = false;
-    isBPressed = false;
-    for i in pairs(buttons) do
-        if (i == 'A') then
-            isAPressed = true;
-        end
-        if (i == 'B') then
-            isBPressed = true;
-        end
-    end
+    local goldenHammerStatus = memory.readbyte('0x005C');
     
-    goldenHammerStatus = memory.readbyte('0x005C');
-    if (isAPressed and isBPressed and goldenHammerDelay <= 0) then
+    if (isButtonPressed('A') and isButtonPressed('B') and goldenHammerDelay <= 0) then
         goldenHammerStatus = (goldenHammerStatus+1)%2;
         goldenHammerDelay = 60;
     end
@@ -60,6 +51,7 @@ function switchGoldenHammer()
     if (goldenHammerStatus == 1) then
         gui.text(171, 8, 'Golden Hammer On');
     end
+    
     memory.writebyte('0x005C', goldenHammerStatus);
     goldenHammerDelay = goldenHammerDelay - 1;
 end
@@ -86,7 +78,7 @@ function drawMARIOLetters()
 end
 
 while true do
-    readRAM();
+    readRAMandInputs();
     drawMARIOLetters();
     switchGoldenHammer();
     
