@@ -1,5 +1,3 @@
-goldenHammerStatus = 0;
-
 function drawBox(loc)
     boxHeight = 22;
     boxColor = 'green';
@@ -15,6 +13,8 @@ function drawBox(loc)
     gui.line(locX,    locY-cameraOffset,           locX,    locY+boxHeight-cameraOffset, boxColor);
 end
 
+goldenHammerStatus = 0;
+goldenHammerDelay = 0;
 function switchGoldenHammer()
     buttons = joypad.getdown(1);
 
@@ -30,14 +30,16 @@ function switchGoldenHammer()
     end
     
     goldenHammerStatus = memory.readbyte('0x005C');
-    if (isAPressed and isBPressed) then
+    if (isAPressed and isBPressed and goldenHammerDelay <= 0) then
         goldenHammerStatus = (goldenHammerStatus+1)%2;
+        goldenHammerDelay = 60;
     end
     
     if (goldenHammerStatus == 1) then
         gui.text(171, 8, 'Golden Hammer On');
     end
     memory.writebyte('0x005C', goldenHammerStatus);
+    goldenHammerDelay = goldenHammerDelay - 1;
 end
 
 while true do
@@ -65,5 +67,5 @@ while true do
     end
     
     switchGoldenHammer();
-    emu.frameadvance()
+    emu.frameadvance();
 end
