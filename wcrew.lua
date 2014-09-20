@@ -5,6 +5,7 @@ end
 
 function readRAMandInputs()
     cameraOffset = memory.readbyte('0x003F');
+    inLevelFlag = memory.readbyte('0x0037');
     buttons = joypad.getdown(1);
 end
 
@@ -40,6 +41,10 @@ function isButtonPressed(button)
     return buttons[button] ~= nil;
 end
 
+function inLevel()
+    return inLevelFlag == 0;
+end
+
 goldenHammerDelay = 0;
 function switchGoldenHammer()
     local goldenHammerStatus = memory.readbyte('0x005C');
@@ -63,14 +68,9 @@ function switchGoldenHammer()
 end
 
 function drawMARIOLetters()
-    inLevel = memory.readbyte('0x0037');
-    if (inLevel == 1) then
-        return;
-    end
-    
-    MARIO = '0x0430';
-    MARIOMap = {'M', 'A', 'R', 'I', 'O'};
-    MARIOFlag = memory.readbyte(MARIO);
+    local MARIO = '0x0430';
+    local MARIOMap = {'M', 'A', 'R', 'I', 'O'};
+    local MARIOFlag = memory.readbyte(MARIO);
     if (MARIOFlag == 0) then
         gui.text(0, 24, 'NO MARIO');
     else
@@ -83,32 +83,33 @@ function drawMARIOLetters()
     end
 end
 
+function drawPrizeBomb()
+    local bombCounter = memory.readbyte('0x0440');
+    if (bombCounter == 0 or bombCounter == 25) then
+        inBonus = memory.readbyte('0x0038');
+        if (inBonus == 15) then
+            bonusCoin = memory.readbyte('0x034F');
+            drawBox(bonusCoin, 'green');
+        else
+            gui.text(0, 8, 'NO PRIZE BOMB');
+        end
+    else
+        magicNumber = memory.readbyte('0x005D');
+        prizeBomb = memory.readbyte('0x0441');
+        drawBox(prizeBomb, 'green');
+        
+        gui.text(0, 8, 'Bomb Counter: ' .. 4 - bombCounter);
+        gui.text(0, 16, 'Magic Number: ' .. 8 - (magicNumber % 8));
+    end
+end
+
 while true do
     readRAMandInputs();
-    drawMARIOLetters();
     switchGoldenHammer();
     
-    inLevel = memory.readbyte('0x0037');
-    if (inLevel == 0) then
-        bombCounter = memory.readbyte('0x0440');
-        if (bombCounter == 0 or bombCounter == 25) then
-            inBonus = memory.readbyte('0x0038');
-            if (inBonus == 15) then
-                bonusCoin = memory.readbyte('0x034F');
-                drawBox(bonusCoin, 'green');
-            else
-                gui.text(0, 8, 'NO PRIZE BOMB');
-            end
-        else
-            lastBomb = memory.readbyte('0x04D1');
-            magicNumber = memory.readbyte('0x005D');
-            
-            prizeBomb = memory.readbyte('0x0441');
-            drawBox(prizeBomb, 'green');
-            
-            gui.text(0, 8, 'Bomb Counter: ' .. 4 - bombCounter);
-            gui.text(0, 16, 'Magic Number: ' .. 8 - (magicNumber % 8));
-        end
+    if (inLevel()) then
+        drawMARIOLetters();
+        drawPrizeBomb();
     end
     
     emu.frameadvance();
