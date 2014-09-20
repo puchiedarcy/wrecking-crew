@@ -1,16 +1,38 @@
-function drawBox(loc, color)
-    boxHeight = 22;
-    boxColor = color;
-    titleOffset = 177;
+titleOffset = 177;
+
+function debugger(v)
+    gui.text(0, 111, v);
+end
+
+function readRAM()
     cameraOffset = memory.readbyte('0x003F');
+end
+
+function convertXLocToPixel(loc)
+    return (loc%16)*16;
+end
+
+function convertYLocToPixel(loc)
+    return titleOffset + math.floor(loc/16)*32 - cameraOffset;
+end
+
+function drawBox(loc, color)
+    local boxHeight = 22;
+    local boxWidth = 16;
+    local locX = convertXLocToPixel(loc);
+    local locY = convertYLocToPixel(loc);
     
-    locX = (loc%16)*16;
-    locY = titleOffset + math.floor(loc/16)*32;
-    
-    gui.line(locX,    locY-cameraOffset,           locX+16, locY-cameraOffset,           boxColor);
-    gui.line(locX+16, locY-cameraOffset,           locX+16, locY+boxHeight-cameraOffset, boxColor);
-    gui.line(locX,    locY+boxHeight-cameraOffset, locX+16, locY+boxHeight-cameraOffset, boxColor);
-    gui.line(locX,    locY-cameraOffset,           locX,    locY+boxHeight-cameraOffset, boxColor);
+    gui.line(locX,          locY,           locX+boxWidth, locY,           color);
+    gui.line(locX+boxWidth, locY,           locX+boxWidth, locY+boxHeight, color);
+    gui.line(locX,          locY+boxHeight, locX+boxWidth, locY+boxHeight, color);
+    gui.line(locX,          locY,           locX,          locY+boxHeight, color);
+end
+
+function drawLetter(loc, letter)
+    local locX = convertXLocToPixel(loc);
+    local locY = convertYLocToPixel(loc);
+
+    gui.text(locX, locY, letter);
 end
 
 goldenHammerStatus = 0;
@@ -49,19 +71,25 @@ function drawMARIOLetters()
     end
     
     MARIO = '0x0430';
+    MARIOMap = {'M', 'A', 'R', 'I', 'O'};
     MARIOFlag = memory.readbyte(MARIO);
     if (MARIOFlag == 0) then
         gui.text(0, 24, 'NO MARIO');
     else
         drawBox(memory.readbyte(MARIO+MARIOFlag), '#00FFFF');
+        drawLetter(memory.readbyte(MARIO+MARIOFlag), MARIOMap[MARIOFlag]); 
         
         for i = MARIOFlag + 1, 5, 1 do
-            drawBox(memory.readbyte(MARIO+i), 'red');
+            drawLetter(memory.readbyte(MARIO+i), MARIOMap[i]); 
         end
     end
 end
 
 while true do
+    readRAM();
+    drawMARIOLetters();
+    switchGoldenHammer();
+    
     inLevel = memory.readbyte('0x0037');
     if (inLevel == 0) then
         bombCounter = memory.readbyte('0x0440');
@@ -85,7 +113,5 @@ while true do
         end
     end
     
-    drawMARIOLetters();
-    switchGoldenHammer();
     emu.frameadvance();
 end
