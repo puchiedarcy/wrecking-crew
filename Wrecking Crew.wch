@@ -1,10 +1,10 @@
 
-37
+40
 00000	0440	b	s	0	Bomb Counter
 00001	0441	b	h	0	Prize Bomb
 00002	005D	b	s	0	Magic Number
 00003	0000	S	S	0	----------------------------
-00004	020B	b	h	0	Mario X
+00004	020B	b	s	0	Mario X
 00005	0315	b	h	0	Mario Y (-x/32)
 00006	030D	b	h	0	Mario Y (mid-floor)
 00007	0000	S	S	0	----------------------------
@@ -25,15 +25,18 @@
 00016	005C	b	s	0	Go1den Hammer
 00017	0092	b	s	0	Phase
 00018	0060	b	s	0	Phase Select
-00019	0000	S	S	0	----------------------------
-0001A	034F	b	h	0	Bonus Coin / Enemy 1
-0001B	0352	b	h	0	Coin Seed
-0001C	0700	b	h	0	RNG?
-0001D	0000	S	S	0	----------------------------
-0001E	030F	b	h	0	Mario's Loc
-0001F	0431	b	h	0	M
-00020	0432	b	h	0	A
-00021	0433	b	h	0	R
-00022	0434	b	h	0	I
-00023	0435	b	h	0	O
-00024	0430	b	h	0	MARIO flag
+00019	0021	b	h	0	Start Countdown
+0001A	0000	S	S	0	----------------------------
+0001B	034F	b	h	0	Bonus Coin / Enemy 1
+0001C	0352	b	h	0	Coin Seed
+0001D	0700	b	h	0	RNG?
+0001E	0000	S	S	0	----------------------------
+0001F	030F	b	h	0	Mario's Loc
+00020	0431	b	h	0	M
+00021	0432	b	h	0	A
+00022	0433	b	h	0	R
+00023	0434	b	h	0	I
+00024	0435	b	h	0	O
+00025	0430	b	h	0	MARIO flag
+00026	0000	S	S	0	----------------------------
+00027	0094	b	s	0	NG+ Flag
