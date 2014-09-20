@@ -1,5 +1,6 @@
+bottomLine = 225;
 function debugger(v)
-    gui.text(0, 111, v);
+    gui.text(0, bottomLine, v);
 end
 
 function readRAMandInputs()
@@ -49,11 +50,16 @@ function switchGoldenHammer()
     end
     
     if (goldenHammerStatus == 1) then
-        gui.text(171, 8, 'Golden Hammer On');
+        gui.text(171, bottomLine, 'Golden Hammer On');
     end
     
     memory.writebyte('0x005C', goldenHammerStatus);
-    goldenHammerDelay = goldenHammerDelay - 1;
+    
+    if goldenHammerDelay < 0 then
+        goldenHammerDelay = 0;
+    else
+        goldenHammerDelay =  goldenHammerDelay - 1;
+    end
 end
 
 function drawMARIOLetters()
