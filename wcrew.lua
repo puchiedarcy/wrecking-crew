@@ -1,6 +1,6 @@
-function drawBox(loc)
+function drawBox(loc, color)
     boxHeight = 22;
-    boxColor = 'green';
+    boxColor = color;
     titleOffset = 177;
     cameraOffset = memory.readbyte('0x003F');
     
@@ -42,6 +42,25 @@ function switchGoldenHammer()
     goldenHammerDelay = goldenHammerDelay - 1;
 end
 
+function drawMARIOLetters()
+    inLevel = memory.readbyte('0x0037');
+    if (inLevel == 1) then
+        return;
+    end
+    
+    MARIO = '0x0430';
+    MARIOFlag = memory.readbyte(MARIO);
+    if (MARIOFlag == 0) then
+        gui.text(0, 24, 'NO MARIO');
+    else
+        drawBox(memory.readbyte(MARIO+MARIOFlag), '#00FFFF');
+        
+        for i = MARIOFlag + 1, 5, 1 do
+            drawBox(memory.readbyte(MARIO+i), 'red');
+        end
+    end
+end
+
 while true do
     inLevel = memory.readbyte('0x0037');
     if (inLevel == 0) then
@@ -50,7 +69,7 @@ while true do
             inBonus = memory.readbyte('0x0038');
             if (inBonus == 15) then
                 bonusCoin = memory.readbyte('0x034F');
-                drawBox(bonusCoin);
+                drawBox(bonusCoin, 'green');
             else
                 gui.text(0, 8, 'NO PRIZE BOMB');
             end
@@ -59,13 +78,14 @@ while true do
             magicNumber = memory.readbyte('0x005D');
             
             prizeBomb = memory.readbyte('0x0441');
-            drawBox(prizeBomb);
+            drawBox(prizeBomb, 'green');
             
             gui.text(0, 8, 'Bomb Counter: ' .. 4 - bombCounter);
             gui.text(0, 16, 'Magic Number: ' .. 8 - (magicNumber % 8));
         end
     end
     
+    drawMARIOLetters();
     switchGoldenHammer();
     emu.frameadvance();
 end
