@@ -61,7 +61,11 @@ So, go left and never wreck the edges.
 
 Fireball
 ========
-At the beginning of a level, the fireball counter starts at 255. It decrements by 1 every 8 frames. At 0, a fireball spawns at the edge of the opposite side of the screen relative to Mario.
+At the beginning of a level, the fireball counter starts at 255 (0xFF) (34 seconds). It decrements by 1 every 8 frames. At 0, a fireball spawns at the edge of the opposite side of the screen relative to Mario.
+
+After it despawns, the counter resets to 96 (12 seconds) (0x60) and counts down again.
+
+In New Game Plus, at level start the counter starts at 64 (8 seconds) and resets to 32 (4 seconds).
 
 Known Unknowns
 ==============
