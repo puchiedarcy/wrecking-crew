@@ -1,3 +1,4 @@
+lineHeight = 8;
 bottomLine = 225;
 function debugger(v)
     gui.text(0, bottomLine, v);
@@ -72,7 +73,7 @@ function drawMARIOLetters()
     local MARIOMap = {'M', 'A', 'R', 'I', 'O'};
     local MARIOFlag = memory.readbyte(MARIO);
     if (MARIOFlag == 0) then
-        gui.text(0, 24, 'NO MARIO');
+        gui.text(0, lineHeight*3, 'NO MARIO');
     else
         drawBox(memory.readbyte(MARIO+MARIOFlag), '#00FFFF');
         drawLetter(memory.readbyte(MARIO+MARIOFlag), MARIOMap[MARIOFlag]); 
@@ -91,16 +92,21 @@ function drawPrizeBomb()
             bonusCoin = memory.readbyte('0x034F');
             drawBox(bonusCoin, 'green');
         else
-            gui.text(0, 8, 'NO PRIZE BOMB');
+            gui.text(0, lineHeight, 'NO PRIZE BOMB');
         end
     else
         magicNumber = memory.readbyte('0x005D');
         prizeBomb = memory.readbyte('0x0441');
         drawBox(prizeBomb, 'green');
         
-        gui.text(0, 8, 'Bomb Counter: ' .. 4 - bombCounter);
-        gui.text(0, 16, 'Magic Number: ' .. 8 - (magicNumber % 8));
+        gui.text(0, lineHeight, 'Bomb Counter: ' .. 4 - bombCounter);
+        gui.text(0, lineHeight*2, 'Magic Number: ' .. 8 - (magicNumber % 8));
     end
+end
+
+function drawFireballCountdown()
+    local countdown = memory.readbyte('0x03DD');
+    gui.text(197, lineHeight, 'Fireball: ' .. countdown);
 end
 
 while true do
@@ -110,6 +116,7 @@ while true do
     if (inLevel()) then
         drawMARIOLetters();
         drawPrizeBomb();
+        drawFireballCountdown();
     end
     
     emu.frameadvance();
