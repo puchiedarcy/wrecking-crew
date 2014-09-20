@@ -44,7 +44,7 @@ while true do
     inLevel = memory.readbyte('0x0037');
     if (inLevel == 0) then
         bombCounter = memory.readbyte('0x0440');
-        if (bombCounter == 0) then
+        if (bombCounter == 0 or bombCounter == 25) then
             inBonus = memory.readbyte('0x0038');
             if (inBonus == 15) then
                 bonusCoin = memory.readbyte('0x034F');
