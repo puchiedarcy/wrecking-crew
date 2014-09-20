@@ -59,6 +59,10 @@ Incidentally, in normal levels this is the location of the first enemy.
 The coin is never is columns 0 or F, and columns 1 and 2 are twice as likely as any of 3 throuh E.
 So, go left and never wreck the edges.
 
+Fireball
+========
+At the beginning of a level, the fireball counter starts at 255. It decrements by 1 every 8 frames. At 0, a fireball spawns at the edge of the opposite side of the screen relative to Mario.
+
 Known Unknowns
 ==============
 * How is the Prize Bomb location selected?
