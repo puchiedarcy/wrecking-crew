@@ -94,8 +94,8 @@ function drawPrizeBomb()
     if (bombCounter == 0) then
         gui.text(0, lineHeight, 'NO PRIZE BOMB');
     else
-        magicNumber = memory.readbyte('0x005D');
-        prizeBomb = memory.readbyte('0x0441');
+        local magicNumber = memory.readbyte('0x005D');
+        local prizeBomb = memory.readbyte('0x0441');
         drawBox(prizeBomb, 'green');
         
         gui.text(0, lineHeight, 'Bomb Counter: ' .. 4 - bombCounter);
@@ -109,7 +109,7 @@ function drawFireballCountdown()
 end
 
 function drawBonusCoin()
-    bonusCoin = memory.readbyte('0x034F');
+    local bonusCoin = memory.readbyte('0x034F');
     drawBox(bonusCoin, 'green');
 end
 
