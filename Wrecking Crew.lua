@@ -109,8 +109,8 @@ function drawPrizeBomb()
 end
 
 function drawFireballCountdown()
-    local countdown = memory.readbyte('0x03DD');
-    gui.text(197, lineHeight, 'Fireball: ' .. countdown);
+    local fireballCountdown = memory.readbyte('0x03DD');
+    gui.text(197, lineHeight, 'Fireball: ' .. fireballCountdown);
 end
 
 function drawBonusCoin()
@@ -139,7 +139,24 @@ function speedupPhaseIntro()
     local countdownTimer = memory.readbyte('0x021');
     
     if (countdownTimer > 96) then
-        memory.writebyte('0x021', 0);
+        memory.writebyte('0x0021', 0);
+    end
+end
+
+
+function startRecording()
+    recording = true;
+end
+
+function stopRecording()
+    recording = false;
+end
+
+function recordAttempts()
+    if (music == 4 and not recording) then
+        startRecording()
+    elseif ((music == 1 or music == 7) and recording) then
+        stopRecording();
     end
 end
 
@@ -151,12 +168,15 @@ while true do
         if (inBonus()) then
             drawBonusCoin();
         else
+            --speedupPhaseIntro();
             drawMARIOLetters();
             drawPrizeBomb();
             drawFireballCountdown();
             drawInGameTimer();
-            speedupPhaseIntro();
+            recordAttempts();
         end
+    else
+        stopRecording();
     end
     
     emu.frameadvance();
