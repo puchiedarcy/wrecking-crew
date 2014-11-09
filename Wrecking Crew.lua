@@ -137,7 +137,7 @@ end
 
 function speedupPhaseIntro()
     local countdownTimer = memory.readbyte('0x021');
-    debugger(countdownTimer);
+    
     if (countdownTimer > 96) then
         memory.writebyte('0x021', 0);
     end
