@@ -15,8 +15,8 @@ function convertXLocToPixel(loc)
     return (loc%16)*16;
 end
 
-titleOffset = 177;
 function convertYLocToPixel(loc)
+    local titleOffset = 177;
     return titleOffset + math.floor(loc/16)*32 - cameraOffset;
 end
 
@@ -37,6 +37,11 @@ function drawLetter(loc, letter)
     local locY = convertYLocToPixel(loc);
     
     gui.text(locX, locY, letter);
+end
+
+function round(num, idp)
+  local mult = 10^(idp or 0)
+  return math.floor(num * mult + 0.5) / mult
 end
 
 function isButtonPressed(button)
@@ -113,6 +118,23 @@ function drawBonusCoin()
     drawBox(bonusCoin, 'green');
 end
 
+inGameTimerFrames = 0;
+function drawInGameTimer()
+    local marioState = memory.readbyte('0x0300');
+    local music = memory.readbyte('0x038');
+    
+    if (marioState ~= 12 and music == 4) then
+        inGameTimerFrames = inGameTimerFrames + 1;
+    elseif (music ~= 5 and music ~= 6 and music ~= 10 and music ~= 11) then
+        inGameTimerFrames = 0;
+    end
+    
+    local inGameSeconds = math.floor(inGameTimerFrames / 60);
+    local inGameHundredths = round((inGameTimerFrames % 60) * 1.66666666666, 0);
+    
+    gui.text(111, lineHeight, 'Time: ' .. inGameSeconds .. '.' .. string.format("%02d", inGameHundredths));
+end
+
 while true do
     readRAMandInputs();
     switchGoldenHammer();
@@ -124,6 +146,7 @@ while true do
             drawMARIOLetters();
             drawPrizeBomb();
             drawFireballCountdown();
+            drawInGameTimer();
         end
     end
     
