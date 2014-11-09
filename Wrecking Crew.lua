@@ -1,7 +1,7 @@
 lineHeight = 8;
 bottomLine = 225;
 function debugger(v)
-    gui.text(0, bottomLine, v);
+    gui.text(100, bottomLine, v);
 end
 
 function readRAMandInputs()
@@ -83,7 +83,7 @@ function drawMARIOLetters()
     local MARIOMap = {'M', 'A', 'R', 'I', 'O'};
     local MARIOFlag = memory.readbyte(MARIO);
     if (MARIOFlag == 0) then
-        gui.text(0, lineHeight*3, 'NO MARIO');
+        gui.text(0, bottomLine, 'NO MARIO');
     else
         drawBox(memory.readbyte(MARIO+MARIOFlag), '#00FFFF');
         drawLetter(memory.readbyte(MARIO+MARIOFlag), MARIOMap[MARIOFlag]); 
@@ -135,6 +135,14 @@ function drawInGameTimer()
     gui.text(111, lineHeight, 'Time: ' .. inGameSeconds .. '.' .. string.format("%02d", inGameHundredths));
 end
 
+function speedupPhaseIntro()
+    local countdownTimer = memory.readbyte('0x021');
+    debugger(countdownTimer);
+    if (countdownTimer > 96) then
+        memory.writebyte('0x021', 0);
+    end
+end
+
 while true do
     readRAMandInputs();
     switchGoldenHammer();
@@ -147,6 +155,7 @@ while true do
             drawPrizeBomb();
             drawFireballCountdown();
             drawInGameTimer();
+            speedupPhaseIntro();
         end
     end
     
