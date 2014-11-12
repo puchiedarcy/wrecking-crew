@@ -1,6 +1,7 @@
 lineHeight = 8;
 bottomLine = 225;
 customInputDelay = 0;
+showCustomMenu = false;
 
 function debugger(v)
     gui.text(100, bottomLine, v);
@@ -56,15 +57,32 @@ function isButtonPressed(player, button)
 end
 
 function parseCustomInput()
-
     if customInputDelay > 0 then
         customInputDelay = customInputDelay - 1;
         return;
     end
     
-    if (isButtonPressed(1, 'A') and isButtonPressed(1, 'B') and customInputDelay <= 0) then
+    if (isButtonPressed(1, 'B') and isButtonPressed(1, 'A') and customInputDelay <= 0) then
         switchGoldenHammer();
         customInputDelay = 60;
+    elseif (not showCustomMenu and isButtonPressed(2, 'start')) then
+        showCustomMenu = true;
+        customInputDelay = 6;
+    elseif (showCustomMenu and isButtonPressed(2, 'start')) then
+        showCustomMenu = false;
+        customInputDelay = 6;
+    elseif (showCustomMenu and isButtonPressed(2, 'select')) then
+        --move through options
+        debugger("select");
+        customInputDelay = 6;
+    elseif (showCustomMenu and isButtonPressed(1, 'B')) then
+        --decrement
+        debugger("B");
+        customInputDelay = 6;
+    elseif (showCustomMenu and isButtonPressed(1, 'A')) then
+        --increment
+        debugger("A");
+        customInputDelay = 6;
     end
 end
 
@@ -176,6 +194,12 @@ function recordAttempts()
     end
 end
 
+function drawCustomMenu()
+    if (showCustomMenu) then
+        gui.rect(50, 58, 205, 181, 'black', 'green');
+    end
+end
+
 while true do
     readRAMandInputs();
     parseCustomInput();
@@ -194,6 +218,7 @@ while true do
         end
     else
         stopRecording();
+        drawCustomMenu();
     end
     
     emu.frameadvance();
