@@ -1,5 +1,7 @@
 lineHeight = 8;
 bottomLine = 225;
+customInputDelay = 0;
+
 function debugger(v)
     gui.text(100, bottomLine, v);
 end
@@ -7,7 +9,8 @@ end
 function readRAMandInputs()
     cameraOffset = memory.readbyte('0x003F');
     inLevelFlag = memory.readbyte('0x0037');
-    buttons = joypad.getdown(1);
+    buttons1p = joypad.getdown(1);
+    buttons2p = joypad.getdown(2);
     music = memory.readbyte('0x0038');
 end
 
@@ -44,8 +47,25 @@ function round(num, idp)
   return math.floor(num * mult + 0.5) / mult
 end
 
-function isButtonPressed(button)
-    return buttons[button] ~= nil;
+function isButtonPressed(player, button)
+    if (player == 1) then
+        return buttons1p[button] ~= nil;
+    elseif (player == 2) then
+        return buttons2p[button] ~= nil;
+    end
+end
+
+function parseCustomInput()
+
+    if customInputDelay > 0 then
+        customInputDelay = customInputDelay - 1;
+        return;
+    end
+    
+    if (isButtonPressed(1, 'A') and isButtonPressed(1, 'B') and customInputDelay <= 0) then
+        switchGoldenHammer();
+        customInputDelay = 60;
+    end
 end
 
 function inLevel()
@@ -56,25 +76,18 @@ function inBonus()
     return music == 15;
 end
 
-goldenHammerDelay = 0;
 function switchGoldenHammer()
     local goldenHammerStatus = memory.readbyte('0x005C');
+    goldenHammerStatus = (goldenHammerStatus+1)%2;
     
-    if (isButtonPressed('A') and isButtonPressed('B') and goldenHammerDelay <= 0) then
-        goldenHammerStatus = (goldenHammerStatus+1)%2;
-        goldenHammerDelay = 60;
-    end
+    memory.writebyte('0x005C', goldenHammerStatus);
+end
+
+function drawGoldenHammerStatus()
+    local goldenHammerStatus = memory.readbyte('0x005C');
     
     if (goldenHammerStatus == 1) then
         gui.text(171, bottomLine, 'Golden Hammer On');
-    end
-    
-    memory.writebyte('0x005C', goldenHammerStatus);
-    
-    if goldenHammerDelay < 0 then
-        goldenHammerDelay = 0;
-    else
-        goldenHammerDelay =  goldenHammerDelay - 1;
     end
 end
 
@@ -143,13 +156,16 @@ function speedupPhaseIntro()
     end
 end
 
-
 function startRecording()
     recording = true;
+    --movie.open();
 end
 
 function stopRecording()
     recording = false;
+    if (true) then
+        --movie.stop();
+    end
 end
 
 function recordAttempts()
@@ -162,17 +178,18 @@ end
 
 while true do
     readRAMandInputs();
-    switchGoldenHammer();
+    parseCustomInput();
     
     if (inLevel()) then
         if (inBonus()) then
             drawBonusCoin();
         else
-            --speedupPhaseIntro();
+            speedupPhaseIntro();
             drawMARIOLetters();
             drawPrizeBomb();
             drawFireballCountdown();
             drawInGameTimer();
+            drawGoldenHammerStatus();
             recordAttempts();
         end
     else
