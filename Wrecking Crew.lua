@@ -2,6 +2,16 @@ lineHeight = 8;
 bottomLine = 225;
 customInputDelay = 0;
 showCustomMenu = false;
+customMenu = {
+    "Recording",
+    "Replay"
+};
+customMenuCursor = 0;
+customMenuValues = {
+    false,
+    false
+};
+
 
 function debugger(v)
     gui.text(100, bottomLine, v);
@@ -62,27 +72,38 @@ function parseCustomInput()
         return;
     end
     
-    if (isButtonPressed(1, 'B') and isButtonPressed(1, 'A') and customInputDelay <= 0) then
-        switchGoldenHammer();
-        customInputDelay = 60;
-    elseif (not showCustomMenu and isButtonPressed(2, 'start')) then
-        showCustomMenu = true;
-        customInputDelay = 6;
-    elseif (showCustomMenu and isButtonPressed(2, 'start')) then
-        showCustomMenu = false;
-        customInputDelay = 6;
-    elseif (showCustomMenu and isButtonPressed(2, 'select')) then
-        --move through options
-        debugger("select");
-        customInputDelay = 6;
-    elseif (showCustomMenu and isButtonPressed(1, 'B')) then
-        --decrement
-        debugger("B");
-        customInputDelay = 6;
-    elseif (showCustomMenu and isButtonPressed(1, 'A')) then
-        --increment
-        debugger("A");
-        customInputDelay = 6;
+    if (inLevel()) then
+        if (isButtonPressed(1, 'B') and isButtonPressed(1, 'A') and customInputDelay <= 0) then
+            switchGoldenHammer();
+            customInputDelay = 60;
+        
+        end
+    else
+        if (not showCustomMenu and isButtonPressed(1, 'left')) then
+            showCustomMenu = true;
+            customInputDelay = 12;
+            
+        elseif (showCustomMenu and isButtonPressed(1, 'left')) then
+            showCustomMenu = false;
+            customInputDelay = 12;
+            
+        elseif (showCustomMenu and isButtonPressed(1, 'right')) then
+            customMenuCursor = (customMenuCursor + 1) % #customMenu;
+            customInputDelay = 12;
+            
+        elseif (showCustomMenu and isButtonPressed(1, 'B')) then
+            --decrement
+            customInputDelay = 12;
+            
+        elseif (showCustomMenu and isButtonPressed(1, 'A')) then
+            --increment
+            customMenuValues[customMenuCursor+1] = not customMenuValues[customMenuCursor+1];
+            customInputDelay = 12;
+            
+        elseif (not showCustomMenu and isButtonPressed(1, 'B') and isButtonPressed(1, 'A')) then
+            memory.writebyte('0x0060', 0);
+            
+        end
     end
 end
 
@@ -197,6 +218,21 @@ end
 function drawCustomMenu()
     if (showCustomMenu) then
         gui.rect(50, 58, 205, 181, 'black', 'green');
+        
+        local y = 72;
+        local spacing = 16;
+        for i = 1, #customMenu do
+            gui.text(72, y, customMenu[i]);
+            y = y + 16;
+        end
+        
+        y = 72;
+        for i = 1, #customMenu do
+            gui.text(150, y, tostring(customMenuValues[i]));
+            y = y + 16;
+        end
+        
+        gui.box(60, 72 + customMenuCursor*spacing, 65, 77 + customMenuCursor*spacing);
     end
 end
 
@@ -208,7 +244,7 @@ while true do
         if (inBonus()) then
             drawBonusCoin();
         else
-            speedupPhaseIntro();
+            --speedupPhaseIntro();
             drawMARIOLetters();
             drawPrizeBomb();
             drawFireballCountdown();
