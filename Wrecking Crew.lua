@@ -104,7 +104,12 @@ function parseCustomInput()
             customInputDelay = 12;
             
         elseif (not showCustomMenu and isButtonPressed(1, 'B') and isButtonPressed(1, 'A')) then
-            memory.writebyte('0x0060', 0);
+            if (memory.readbyte('0x0060') ~= 0) then
+                memory.writebyte('0x0060', 0);
+            else
+                memory.writebyte('0x0060', 50);
+            end
+            customInputDelay = 60;
             
         end
     end
