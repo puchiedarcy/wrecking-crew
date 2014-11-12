@@ -4,10 +4,12 @@ customInputDelay = 0;
 showCustomMenu = false;
 customMenu = {
     "Recording",
+    "Replay",
     "NG+"
 };
 customMenuCursor = 0;
 customMenuValues = {
+    false,
     false,
     false
 };
@@ -238,11 +240,16 @@ function drawCustomMenu()
 end
 
 function setCustomOptions()
-    if (customMenu[1]) then
+    if (customMenuValues[1]) then
         --recording
     end
     
     if (customMenuValues[2]) then
+        --replay
+        memory.writebyte('0x0092', memory.readbyte('0x0060'));
+    end
+    
+    if (customMenuValues[3]) then
         --NG+
         memory.writebyte('0x0094', 1);
     end
