@@ -4,7 +4,7 @@ customInputDelay = 0;
 showCustomMenu = false;
 customMenu = {
     "Recording",
-    "Replay"
+    "NG+"
 };
 customMenuCursor = 0;
 customMenuValues = {
@@ -85,6 +85,7 @@ function parseCustomInput()
             
         elseif (showCustomMenu and isButtonPressed(1, 'left')) then
             showCustomMenu = false;
+            customMenuCursor = 0;
             customInputDelay = 12;
             
         elseif (showCustomMenu and isButtonPressed(1, 'right')) then
@@ -236,9 +237,21 @@ function drawCustomMenu()
     end
 end
 
+function setCustomOptions()
+    if (customMenu[1]) then
+        --recording
+    end
+    
+    if (customMenuValues[2]) then
+        --NG+
+        memory.writebyte('0x0094', 1);
+    end
+end
+
 while true do
     readRAMandInputs();
     parseCustomInput();
+    setCustomOptions();
     
     if (inLevel()) then
         if (inBonus()) then
