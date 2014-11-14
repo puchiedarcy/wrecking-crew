@@ -29,12 +29,13 @@ db = sqlite.open('wcrewdb.sqlite');
 db:exec([[
     create table best_times (
         phase integer primary key,
-        frames integer not null
+        frames integer not null,
+        length integer not null
     );
 ]]);
 
 for i=1, 100 do
-    local e = db:exec('insert into best_times values (' .. i .. ', 0);' );
+    local e = db:exec('insert into best_times values (' .. i .. ', 0, 0);' );
 end
 
 function readRAMandInputs()
@@ -202,21 +203,27 @@ function drawBonusCoin()
 end
 
 inGameTimerFrames = 0;
+movieLength = 0;
 function drawInGameTimer()
     local marioState = memory.readbyte('0x0300');
     local music = memory.readbyte('0x038');
     local phase = memory.readbyte('0x0092') + 1;
     
-    for row in db:rows('SELECT frames FROM best_times where phase = ' .. phase .. ';') do
+    for row in db:rows('SELECT frames, length FROM best_times where phase = ' .. phase .. ';') do
         bestTimeInFrames = row[1];
+        bestMovieLength = row[2];
     end
     
     if (marioState == 14) then
         inGameTimerFrames = 0;
+        movieLength = 0;
         return;
     end
     
+    movieLength = movieLength + 1;
+    
     if (marioState == 12 and music == 4) then
+        startReplaying(phase, bestMovieLength);
         startRecording(phase);
     elseif (marioState ~= 12 and marioState ~= 13 and music == 4) then
         inGameTimerFrames = inGameTimerFrames + 1;
@@ -225,11 +232,12 @@ function drawInGameTimer()
             gui.text(107, lineHeight*12, "New record!");
         end
     elseif (music == 7) then
+        stopRecording();
+        stopReplaying();
         if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
-            local e = db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ' where phase = ' .. phase .. ';');
+            local e = db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ', length = ' .. movieLength .. ' where phase = ' .. phase .. ';');
         end
     elseif (music == 1) then
-        stopRecording();
         inGameTimerFrames = 0;
     end
     
@@ -250,10 +258,12 @@ function speedupPhaseIntro()
     end
 end
 
-function startReplaying()
+function startReplaying(phase, frames)
     if (customMenuValues[3]) then
-        replaying = true;
-        --load movie
+        if (not replaying) then
+            replaying = true;
+            movie.play(phase, 0);
+        end
     end
 end
 
@@ -346,7 +356,6 @@ while true do
             drawFireballCountdown();
             drawInGameTimer();
             drawGoldenHammerStatus();
-            startReplaying();
         end
     else
         stopRecording();
