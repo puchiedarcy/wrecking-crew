@@ -3,7 +3,9 @@ bottomLine = 225;
 customInputDelay = 0;
 showCustomMenu = false;
 customMenu = {
-    "Recording",
+    "Golden Hammer",
+    "Record",
+    "Replay",
     "Repeat",
     "NG+"
 };
@@ -11,8 +13,12 @@ customMenuCursor = 0;
 customMenuValues = {
     false,
     false,
+    false,
+    false,
     false
 };
+recording = false;
+replaying = false;
 
 function debugger(v)
     gui.text(100, bottomLine, v);
@@ -210,7 +216,9 @@ function drawInGameTimer()
         return;
     end
     
-    if (marioState ~= 12 and marioState ~= 13 and music == 4) then
+    if (marioState == 12 and music == 4) then
+        startRecording(phase);
+    elseif (marioState ~= 12 and marioState ~= 13 and music == 4) then
         inGameTimerFrames = inGameTimerFrames + 1;
     elseif (music == 6) then
         if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
@@ -221,6 +229,7 @@ function drawInGameTimer()
             local e = db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ' where phase = ' .. phase .. ';');
         end
     elseif (music == 1) then
+        stopRecording();
         inGameTimerFrames = 0;
     end
     
@@ -241,23 +250,19 @@ function speedupPhaseIntro()
     end
 end
 
-function startRecording()
-    recording = true;
-    --movie.open();
-end
-
-function stopRecording()
-    recording = false;
-    if (true) then
-        --movie.stop();
+function startReplaying()
+    if (customMenuValues[3]) then
+        replaying = true;
+        --load movie
     end
 end
 
-function recordAttempts()
-    if (music == 4 and not recording) then
-        startRecording()
-    elseif ((music == 1 or music == 7) and recording) then
-        stopRecording();
+function stopReplaying()
+    if (customMenuValues[3]) then
+        replaying = false;
+        if (movie.active()) then
+            movie.stop();
+        end
     end
 end
 
@@ -282,17 +287,44 @@ function drawCustomMenu()
     end
 end
 
+function startRecording(phase)
+    if (customMenuValues[2]) then
+        if (not recording) then
+            recording = true;
+            movie.record(phase);
+        end
+    end
+end
+
+function stopRecording()
+    if (customMenuValues[2]) then
+        recording = false;
+        if (movie.active()) then
+            movie.stop();
+        end
+    end
+end
+
 function setCustomOptions()
     if (customMenuValues[1]) then
-        --recording
+        --repeat
+        memory.writebyte('0x005C', 1);
+    end
+    
+    if (customMenuValues[3]) then
+        customMenuValues[2] = false;
     end
     
     if (customMenuValues[2]) then
+        customMenuValues[3] = false;
+    end
+    
+    if (customMenuValues[4]) then
         --repeat
         memory.writebyte('0x0092', memory.readbyte('0x0060'));
     end
     
-    if (customMenuValues[3]) then
+    if (customMenuValues[5]) then
         --NG+
         memory.writebyte('0x0094', 1);
     end
@@ -305,18 +337,20 @@ while true do
     
     if (inLevel()) then
         if (inBonus()) then
+            stopRecording();
             drawBonusCoin();
         else
             --speedupPhaseIntro();
-            drawMARIOLetters();
+            --drawMARIOLetters();
             drawPrizeBomb();
             drawFireballCountdown();
             drawInGameTimer();
             drawGoldenHammerStatus();
-            recordAttempts();
+            startReplaying();
         end
     else
         stopRecording();
+        stopReplaying();
         drawCustomMenu();
     end
     
