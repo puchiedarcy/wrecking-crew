@@ -14,9 +14,21 @@ customMenuValues = {
     false
 };
 
-
 function debugger(v)
     gui.text(100, bottomLine, v);
+end
+
+sqlite = require('lsqlite3');
+db = sqlite.open('wcrewdb.sqlite');
+db:exec([[
+    create table best_times (
+        phase integer primary key,
+        frames integer not null
+    );
+]]);
+
+for i=1, 100 do
+    local e = db:exec('insert into best_times values (' .. i .. ', 0);' );
 end
 
 function readRAMandInputs()
@@ -182,17 +194,38 @@ inGameTimerFrames = 0;
 function drawInGameTimer()
     local marioState = memory.readbyte('0x0300');
     local music = memory.readbyte('0x038');
+    local phase = memory.readbyte('0x0092') + 1;
     
-    if (marioState ~= 12 and music == 4) then
+    for row in db:rows('SELECT frames FROM best_times where phase = ' .. phase .. ';') do
+        bestTimeInFrames = row[1];
+    end
+    
+    if (marioState == 14) then
+        inGameTimerFrames = 0;
+        return;
+    end
+    
+    if (marioState ~= 12 and marioState ~= 13 and music == 4) then
         inGameTimerFrames = inGameTimerFrames + 1;
-    elseif (music ~= 5 and music ~= 6 and music ~= 10 and music ~= 11) then
+    elseif (music == 6) then
+        if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
+            gui.text(107, lineHeight*12, "New record!");
+        end
+    elseif (music == 7) then
+        if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
+            local e = db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ' where phase = ' .. phase .. ';');
+        end
+    elseif (music == 1) then
         inGameTimerFrames = 0;
     end
     
     local inGameSeconds = math.floor(inGameTimerFrames / 60);
     local inGameHundredths = round((inGameTimerFrames % 60) * 1.66666666666, 0);
-    
     gui.text(111, lineHeight, 'Time: ' .. inGameSeconds .. '.' .. string.format("%02d", inGameHundredths));
+    
+    local bestGameSeconds = math.floor(bestTimeInFrames / 60);
+    local bestGameHundredths = round((bestTimeInFrames % 60) * 1.66666666666, 0);
+    gui.text(110, lineHeight*2, 'Best: ' .. bestGameSeconds .. '.' .. string.format("%02d", bestGameHundredths));
 end
 
 function speedupPhaseIntro()
