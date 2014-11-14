@@ -136,6 +136,11 @@ function inBonus()
 end
 
 function switchGoldenHammer()
+    local phase = memory.readbyte('0x0092') + 1;
+    if (phase == 1 or phase == 2 or phase == 3) then
+        return;
+    end
+    
     local goldenHammerStatus = memory.readbyte('0x005C');
     goldenHammerStatus = (goldenHammerStatus+1)%2;
     
@@ -176,7 +181,7 @@ function drawPrizeBomb()
         drawBox(prizeBomb, 'green');
         
         gui.text(0, lineHeight, 'Bomb Counter: ' .. 4 - bombCounter);
-        gui.text(0, lineHeight*2, 'Magic Number: ' .. 8 - (magicNumber % 8));
+        gui.text(2, lineHeight*2, 'Magic Number: ' .. 8 - (magicNumber % 8));
     end
 end
 
