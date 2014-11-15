@@ -208,6 +208,7 @@ function drawInGameTimer()
     local marioState = memory.readbyte('0x0300');
     local music = memory.readbyte('0x038');
     local phase = memory.readbyte('0x0092') + 1;
+    local prettyPhase = string.format("%03d", phase);
     
     for row in db:rows('SELECT frames, length FROM best_times where phase = ' .. phase .. ';') do
         bestTimeInFrames = row[1];
@@ -235,7 +236,10 @@ function drawInGameTimer()
         stopRecording();
         stopReplaying();
         if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
-            local e = db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ', length = ' .. movieLength .. ' where phase = ' .. phase .. ';');
+            db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ', length = ' .. movieLength .. ' where phase = ' .. phase .. ';');
+            os.rename(movie.directory() .. "wcrew/" .. phase .. ".fm2", movie.directory() .. "wcrew/Best " .. prettyPhase .. ".fm2");
+        else
+            os.remove(movie.directory() .. "wcrew/" .. phase .. ".fm2");
         end
     elseif (music == 1) then
         inGameTimerFrames = 0;
@@ -262,7 +266,7 @@ function startReplaying(phase, frames)
     if (customMenuValues[3]) then
         if (not replaying) then
             replaying = true;
-            movie.play(phase, 0);
+            movie.play(string.format("wcrew/Best %03d", phase), 0);
         end
     end
 end
@@ -301,7 +305,7 @@ function startRecording(phase)
     if (customMenuValues[2]) then
         if (not recording) then
             recording = true;
-            movie.record(phase);
+            movie.record("wcrew/" .. phase);
         end
     end
 end
@@ -323,6 +327,7 @@ function setCustomOptions()
     
     if (customMenuValues[3]) then
         customMenuValues[2] = false;
+        customMenuValues[1] = false;
     end
     
     if (customMenuValues[2]) then
@@ -359,6 +364,7 @@ while true do
         end
     else
         stopRecording();
+        os.remove(movie.directory() .. "wcrew/" .. memory.readbyte('0x0092') + 1 .. ".fm2");
         stopReplaying();
         drawCustomMenu();
     end
