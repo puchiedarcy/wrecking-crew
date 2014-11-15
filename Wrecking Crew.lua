@@ -38,6 +38,17 @@ for i=1, 100 do
     local e = db:exec('insert into best_times values (' .. i .. ', 0, 0);' );
 end
 
+db:exec([[
+    create table coin_locs (
+        loc integer primary key,
+        count integer not null
+    );
+]]);
+
+for i=0, 15 do
+    local e = db:exec('insert into coin_locs values (' .. i .. ', 0);' );
+end
+
 function readRAMandInputs()
     cameraOffset = memory.readbyte('0x003F');
     inLevelFlag = memory.readbyte('0x0037');
@@ -139,7 +150,7 @@ function inLevel()
 end
 
 function inBonus()
-    return music == 15;
+    return music == 15 or music == 16;
 end
 
 function switchGoldenHammer()
@@ -229,13 +240,13 @@ function drawInGameTimer()
     elseif (marioState ~= 12 and marioState ~= 13 and music == 4) then
         inGameTimerFrames = inGameTimerFrames + 1;
     elseif (music == 6) then
-        if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
+        if (customMenuValues[2] and (bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
             gui.text(107, lineHeight*12, "New record!");
         end
     elseif (music == 7) then
         stopRecording();
         stopReplaying();
-        if ((bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
+        if (customMenuValues[2] and (bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
             db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ', length = ' .. movieLength .. ' where phase = ' .. phase .. ';');
             os.rename(movie.directory() .. "wcrew/" .. phase .. ".fm2", movie.directory() .. "wcrew/Best " .. prettyPhase .. ".fm2");
         else
@@ -321,16 +332,18 @@ end
 
 function setCustomOptions()
     if (customMenuValues[1]) then
-        --repeat
+        --go1den hammer
         memory.writebyte('0x005C', 1);
     end
     
     if (customMenuValues[3]) then
+        --replay
         customMenuValues[2] = false;
         customMenuValues[1] = false;
     end
     
     if (customMenuValues[2]) then
+        --record
         customMenuValues[3] = false;
     end
     
@@ -345,6 +358,34 @@ function setCustomOptions()
     end
 end
 
+countNextCoin = true;
+function autoSolveBonus()
+    memory.writebyte('0x034f', 0);
+    local loc = memory.readbyte('0x0352');
+    
+    drawBox(80+(loc/16), 'green');
+    
+    if (countNextCoin) then
+        for row in db:rows('SELECT count FROM coin_locs where loc = ' .. loc/16 .. ';') do
+            local count = row[1];
+            db:exec('UPDATE coin_locs SET count = ' .. count + 1 .. ' where loc = ' .. loc/16 .. ';');
+        end
+        
+        countNextCoin = false;
+    end
+    
+    local totalCoins = 0;
+    for row in db:rows('SELECT count FROM coin_locs;') do
+        local count = row[1];
+        totalCoins = totalCoins + count;
+    end
+    
+    for row in db:rows('SELECT loc, count FROM coin_locs;') do
+        local count = row[2];
+        drawLetter(80+(row[1]), string.format("%.f", round(count/totalCoins*100)));
+    end
+end
+
 while true do
     readRAMandInputs();
     parseCustomInput();
@@ -353,7 +394,8 @@ while true do
     if (inLevel()) then
         if (inBonus()) then
             stopRecording();
-            drawBonusCoin();
+            --drawBonusCoin();
+            autoSolveBonus();
         else
             --speedupPhaseIntro();
             --drawMARIOLetters();
@@ -361,12 +403,14 @@ while true do
             drawFireballCountdown();
             drawInGameTimer();
             drawGoldenHammerStatus();
+            countNextCoin = true;
         end
     else
         stopRecording();
         os.remove(movie.directory() .. "wcrew/" .. memory.readbyte('0x0092') + 1 .. ".fm2");
         stopReplaying();
         drawCustomMenu();
+        countNextCoin = true;
     end
     
     emu.frameadvance();
