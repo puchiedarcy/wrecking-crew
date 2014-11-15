@@ -248,6 +248,7 @@ function drawInGameTimer()
         stopReplaying();
         if (customMenuValues[2] and (bestTimeInFrames == 0 or inGameTimerFrames < bestTimeInFrames) and inGameTimerFrames > 0) then
             db:exec('UPDATE best_times SET frames = ' .. inGameTimerFrames .. ', length = ' .. movieLength .. ' where phase = ' .. phase .. ';');
+            os.remove(movie.directory() .. "wcrew/Best " .. prettyPhase .. ".fm2");
             os.rename(movie.directory() .. "wcrew/" .. phase .. ".fm2", movie.directory() .. "wcrew/Best " .. prettyPhase .. ".fm2");
         else
             os.remove(movie.directory() .. "wcrew/" .. phase .. ".fm2");
@@ -365,7 +366,7 @@ function autoSolveBonus()
     
     drawBox(80+(loc/16), 'green');
     
-    if (countNextCoin) then
+    if (not customMenuValues[3] and countNextCoin) then
         for row in db:rows('SELECT count FROM coin_locs where loc = ' .. loc/16 .. ';') do
             local count = row[1];
             db:exec('UPDATE coin_locs SET count = ' .. count + 1 .. ' where loc = ' .. loc/16 .. ';');
