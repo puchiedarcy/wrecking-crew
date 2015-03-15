@@ -19,7 +19,7 @@ customMenuValues = {
 };
 recording = false;
 replaying = false;
-lastSaveState = null;
+lastSaveState = nil;
 
 function debugger(v)
     gui.text(100, bottomLine, v);
@@ -99,9 +99,40 @@ function isButtonPressed(player, button)
     end
 end
 
-function parseCustomInput()
+function canAcceptInput()
     if customInputDelay > 0 then
         customInputDelay = customInputDelay - 1;
+        return false;
+    end
+    
+    return true;
+end
+
+selectDelay = 0;
+function selectIsNothing()
+    if (selectDelay > 0) then
+        inputs = joypad.get(1);
+        inputs['select'] = false;
+        joypad.set(1, inputs);
+        selectDelay = selectDelay - 1;
+        return;
+    end
+    
+    emu.registerbefore(nil);
+end
+
+function selectIsLoadState()
+    if (canAcceptInput() and isButtonPressed(1, 'select')) then
+        emu.registerbefore(nil);
+        savestate.load(lastSaveState);
+        lastSaveState = nil;
+        selectDelay = 60;
+        emu.registerbefore(selectIsNothing);
+    end
+end
+
+function parseCustomInput()
+    if (not canAcceptInput()) then
         return;
     end
     
@@ -110,18 +141,18 @@ function parseCustomInput()
             --switchGoldenHammer();
             customInputDelay = 60;
             
-        elseif (isButtonPressed(1, 'down') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
-            lastSaveState = savestate.object(1);
-            savestate.save(lastSaveState);
-            savestate.persist(lastSaveState);
-            emu.message("Saved state...");
-            customInputDelay = 60;
+        --elseif (isButtonPressed(1, 'down') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
+        --    lastSaveState = savestate.object(1);
+        --    savestate.save(lastSaveState);
+        --    savestate.persist(lastSaveState);
+        --    emu.message("Saved state...");
+        --    customInputDelay = 60;
             
-        elseif (isButtonPressed(1, 'up') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
-            savestate.load(lastSaveState);
-            emu.message("Loaded state...");
-            customInputDelay = 60;
-            
+        --elseif (isButtonPressed(1, 'up') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
+        --    savestate.load(lastSaveState);
+        --    emu.message("Loaded state...");
+        --   customInputDelay = 60;
+        
         end
     else
         if (not showCustomMenu and isButtonPressed(1, 'left')) then
@@ -245,11 +276,24 @@ function drawInGameTimer()
         return;
     end
     
+    if (music == 11) then
+        if (isButtonPressed(1, 'select')) then
+            emu.registerbefore(nil);
+            lastSaveState = nil;
+        end
+    end    
+    
     movieLength = movieLength + 1;
     
     if (marioState == 12 and music == 4) then
         startReplaying(phase, bestMovieLength);
         startRecording(phase);
+        if (not lastSaveState) then
+            lastSaveState = savestate.object(1);
+            savestate.save(lastSaveState);
+            savestate.persist(lastSaveState);
+            emu.registerbefore(selectIsLoadState);
+        end
     elseif (marioState ~= 12 and marioState ~= 13 and music == 4) then
         inGameTimerFrames = inGameTimerFrames + 1;
     elseif (music == 6) then
