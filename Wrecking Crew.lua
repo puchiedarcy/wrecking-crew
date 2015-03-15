@@ -19,6 +19,7 @@ customMenuValues = {
 };
 recording = false;
 replaying = false;
+lastSaveState = null;
 
 function debugger(v)
     gui.text(100, bottomLine, v);
@@ -106,9 +107,21 @@ function parseCustomInput()
     
     if (inLevel()) then
         if (isButtonPressed(1, 'B') and isButtonPressed(1, 'A') and customInputDelay <= 0) then
-            switchGoldenHammer();
+            --switchGoldenHammer();
             customInputDelay = 60;
-        
+            
+        elseif (isButtonPressed(1, 'down') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
+            lastSaveState = savestate.object(1);
+            savestate.save(lastSaveState);
+            savestate.persist(lastSaveState);
+            emu.message("Saved state...");
+            customInputDelay = 60;
+            
+        elseif (isButtonPressed(1, 'up') and (isButtonPressed(1, 'A') or isButtonPressed(1, 'B'))) then
+            savestate.load(lastSaveState);
+            emu.message("Loaded state...");
+            customInputDelay = 60;
+            
         end
     else
         if (not showCustomMenu and isButtonPressed(1, 'left')) then
