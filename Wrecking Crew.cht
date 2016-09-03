@@ -5,3 +5,6 @@ SC:a2cb:85:a5:SEKXLZSZ | G Han on
 SC:c284:25:85:IXEGGZSA | keep ghan on death
 SC:a1bc:25:85:IXUXGPSA | keep ghan on select
 SC:a3cc:e6:c6:VVKXGLVG | gain life on death
+SC:a3cd:83:90:UEKXILEP | inc hi scor
+SC:a021:83:00:UAXZPAAA | print high score
+SC:a020:a5:a9:SZXZAEOZ | print high score
